@@ -39,6 +39,7 @@ public class DeviceCategoryService {
             deviceCategoryRepository.save(category);
         }
         return null;
+        //empty line
     }
 
     
