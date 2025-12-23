@@ -32,7 +32,7 @@ public class DeviceController {
         return new ResponseEntity<>(devices,HttpStatus.OK);
     }
 
-    @GetMapping("{/id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Device> getDeviceById(@PathVariable("id") Long deviceId){
         Optional<Device> deviceOpt = deviceService.getDeviceById(deviceId);
         if(deviceOpt.isPresent()){
