@@ -1,46 +1,60 @@
 package com.healthcare.medical_devices_inventory.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.healthcare.medical_devices_inventory.exception.ResourceNotFoundException;
 import com.healthcare.medical_devices_inventory.model.DeviceCategory;
 import com.healthcare.medical_devices_inventory.repository.DeviceCategoryRepository;
 
 @Service
 public class DeviceCategoryService {
-    
+
     private final DeviceCategoryRepository deviceCategoryRepository;
 
-    public DeviceCategoryService(DeviceCategoryRepository deviceCategoryRepository){
+    public DeviceCategoryService(DeviceCategoryRepository deviceCategoryRepository) {
         this.deviceCategoryRepository = deviceCategoryRepository;
     }
 
-    public List<DeviceCategory> getAllCategories(){
+    // Get all Device Categories
+    @Transactional(readOnly = true)
+    public List<DeviceCategory> getAllCategories() {
         return deviceCategoryRepository.findAll();
     }
 
-    public Optional<DeviceCategory> getCategoryById(Long categoryId){
-        return deviceCategoryRepository.findById(categoryId);
+    // Get Device Category by ID
+    @Transactional(readOnly = true)
+    public DeviceCategory getCategoryById(Long categoryId) {
+        return deviceCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + categoryId));
     }
 
-    public DeviceCategory createCategory(DeviceCategory deviceCategory){
+    // Create a new Device Category
+    @Transactional
+    public DeviceCategory createCategory(DeviceCategory deviceCategory) {
         return deviceCategoryRepository.save(deviceCategory);
     }
 
-    public DeviceCategory updateCategory(Long id,DeviceCategory deviceCategory){
-        Optional<DeviceCategory> existingCaterory = getCategoryById(id);
-        if(existingCaterory.isPresent()){
-            DeviceCategory category = existingCaterory.get();
-            category.setCategoryName(deviceCategory.getCategoryName());
-            category.setDescription(deviceCategory.getDescription());
-            category.setDevices(deviceCategory.getDevices());
-            deviceCategoryRepository.save(category);
-        }
-        return null;
-        //empty line
+    // Update an existing Device Category
+    @Transactional
+    public DeviceCategory updateCategory(Long id, DeviceCategory deviceCategory) {
+        DeviceCategory existingCategory = deviceCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+
+        existingCategory.setCategoryName(deviceCategory.getCategoryName());
+        existingCategory.setDescription(deviceCategory.getDescription());
+        existingCategory.setDevices(deviceCategory.getDevices());
+        return deviceCategoryRepository.save(existingCategory); // Save the updated category
     }
 
-    
+    // Delete a Device Category by ID
+    @Transactional
+    public void deleteCategory(Long id) {
+        if (!deviceCategoryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Category not found with id " + id);
+        }
+        deviceCategoryRepository.deleteById(id);
+    }
 }

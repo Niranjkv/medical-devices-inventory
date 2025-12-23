@@ -67,8 +67,8 @@ public class DeviceStatusRecordService{
 
         // Update existing record
         existingRecord.setStatus(updatedRecord.getStatus());
-        existingRecord.setStatusChangeDate(updatedRecord.getStatusChangeDate());
-        existingRecord.setUpdatedAt(LocalDateTime.now()); 
+        existingRecord.setStatusChangeDate(LocalDateTime.now());
+       // existingRecord.setUpdatedAt(LocalDateTime.now()); 
 
         // Save and return the updated record
         return deviceStatusRecordRepository.save(existingRecord);
