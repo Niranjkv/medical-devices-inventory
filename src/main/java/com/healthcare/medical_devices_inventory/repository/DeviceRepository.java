@@ -1,10 +1,11 @@
 package com.healthcare.medical_devices_inventory.repository;
 
-import com.healthcare.medical_devices_inventory.model.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.healthcare.medical_devices_inventory.model.Device;
+
 @Repository
-public interface DeviceRepository extends JpaRepository<Device, Long>{
+public interface DeviceRepository extends JpaRepository<Device,Long>{
     
 }
