@@ -10,7 +10,7 @@ import com.healthcare.medical_devices_inventory.repository.DeviceRepository;
 
 @Service
 public class DeviceService {
-    private DeviceRepository deviceRepository;
+    private final DeviceRepository deviceRepository;
 
     public DeviceService(DeviceRepository deviceRepository){
         this.deviceRepository=deviceRepository;

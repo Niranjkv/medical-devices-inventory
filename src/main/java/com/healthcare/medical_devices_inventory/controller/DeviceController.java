@@ -20,7 +20,7 @@ import com.healthcare.medical_devices_inventory.service.DeviceService;
 @RestController
 @RequestMapping("/device")
 public class DeviceController {
-    private DeviceService deviceService;
+    private final DeviceService deviceService;
     
     public DeviceController(DeviceService deviceService){
         this.deviceService = deviceService;

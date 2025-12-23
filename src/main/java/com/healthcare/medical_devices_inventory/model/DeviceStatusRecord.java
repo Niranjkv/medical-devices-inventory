@@ -42,6 +42,7 @@ public class DeviceStatusRecord{
     public void onCreate(){
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        statusChangeDate = LocalDateTime.now();
     }
 
     @PreUpdate
