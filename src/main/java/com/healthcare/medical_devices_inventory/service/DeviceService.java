@@ -4,19 +4,30 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.healthcare.medical_devices_inventory.exception.ResourceNotFoundException;
 import com.healthcare.medical_devices_inventory.model.Device;
+import com.healthcare.medical_devices_inventory.model.DeviceCategory;
+import com.healthcare.medical_devices_inventory.repository.DeviceCategoryRepository;
 import com.healthcare.medical_devices_inventory.repository.DeviceRepository;
 
 @Service
 public class DeviceService {
     private final DeviceRepository deviceRepository;
 
-    public DeviceService(DeviceRepository deviceRepository){
+    private final DeviceCategoryRepository deviceCategoryRepository;
+
+    public DeviceService(DeviceRepository deviceRepository,DeviceCategoryRepository deviceCategoryRepository){
         this.deviceRepository=deviceRepository;
+        this.deviceCategoryRepository = deviceCategoryRepository;
     }
 
+    @Transactional
     public Device createDevice(Device device){
+         DeviceCategory category = deviceCategoryRepository.findById(device.getCategoryId())
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        device.setCategory(category);
         return deviceRepository.save(device);
     }
 
@@ -38,8 +49,8 @@ public class DeviceService {
             existingDevice.setQuantity(device.getQuantity());
             existingDevice.setRegistrationDate(device.getRegistrationDate());
             existingDevice.setMaintanenceDate(device.getMaintanenceDate());
-            existingDevice.setCreatedAt(device.getCreatedAt());
-            existingDevice.setUpdatedAt(device.getUpdatedAt());
+            // existingDevice.setCreatedAt(device.getCreatedAt());
+            // existingDevice.setUpdatedAt(device.getUpdatedAt());
             
             deviceRepository.save(existingDevice);
             return getDeviceById(deviceId);

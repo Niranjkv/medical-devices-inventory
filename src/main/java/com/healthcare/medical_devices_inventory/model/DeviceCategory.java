@@ -26,8 +26,8 @@ public class DeviceCategory {
 
     private String description;
 
-    @OneToMany(mappedBy = "category")
     @JsonBackReference
+    @OneToMany(mappedBy = "category")
     List<Device> devices;
 
 }
