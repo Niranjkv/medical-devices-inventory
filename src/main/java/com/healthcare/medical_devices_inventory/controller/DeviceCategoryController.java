@@ -42,7 +42,7 @@ public class DeviceCategoryController {
 
     // Create a new Device Category
     @PostMapping
-    public ResponseEntity<DeviceCategory> createCategory(@RequestBody DeviceCategory deviceCategory) {
+    public ResponseEntity<DeviceCategory> createCategory(@RequestBody DeviceCategory deviceCategory) { 
         DeviceCategory createdCategory = deviceCategoryService.createCategory(deviceCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
