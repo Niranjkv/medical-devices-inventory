@@ -2,13 +2,14 @@ package com.healthcare.medical_devices_inventory.model;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -23,6 +24,7 @@ public class Device {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
     private String modelNumber;
     private String serialNumber;
     private String description;
@@ -32,9 +34,11 @@ public class Device {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @JsonManagedReference
     @ManyToOne
+    @JoinColumn(name = "category_id")
+    @JsonIgnore  // This will serialize the 'category' field
     private DeviceCategory category;
+
 
     @PrePersist
     public void onCreate(){
@@ -46,9 +50,9 @@ public class Device {
     public void onUpdate(){
         updatedAt = LocalDateTime.now();
     }
-
-    @JsonProperty("categoryId")
+    @JsonProperty("categoryId")  // Expose only categoryId
     public Long getCategoryId() {
-        return category != null ? category.getId() : null;
+        return category != null ? category.getId() : null;  // Safely return categoryId
     }
+
 }

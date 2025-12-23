@@ -2,8 +2,6 @@ package com.healthcare.medical_devices_inventory.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +24,6 @@ public class DeviceCategory {
 
     private String description;
 
-    @JsonBackReference
     @OneToMany(mappedBy = "category")
     List<Device> devices;
 

@@ -1,8 +1,8 @@
 package com.healthcare.medical_devices_inventory.controller;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,56 +14,47 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
 import com.healthcare.medical_devices_inventory.model.Device;
 import com.healthcare.medical_devices_inventory.service.DeviceService;
 
 @RestController
-@RequestMapping("/device")
+@RequestMapping("/devices")
 public class DeviceController {
+
     private final DeviceService deviceService;
-    
-    public DeviceController(DeviceService deviceService){
+
+    @Autowired
+    public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Device>> getAllDevices(){
-        List<Device> devices = deviceService.getAllDevices();
-        return new ResponseEntity<>(devices,HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Device> getDeviceById(@PathVariable("id") Long deviceId){
-        Optional<Device> deviceOpt = deviceService.getDeviceById(deviceId);
-        if(deviceOpt.isPresent()){
-            Device device = deviceOpt.get();
-            return new ResponseEntity<>(device,HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
     @PostMapping("/create")
-    public ResponseEntity<Device> createDevice(@RequestBody Device device){
-        Device createdDevice = deviceService.createDevice(device);
-        return new ResponseEntity<>(createdDevice,HttpStatus.CREATED);
+    public ResponseEntity<Device> createDevice(@RequestBody DeviceDTO deviceDTO) {
+        Device device = deviceService.createDevice(deviceDTO);
+        return new ResponseEntity<>(device, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}/update")
-    public ResponseEntity<Device> updateDevice(@PathVariable("id") Long deviceId,@RequestBody Device device){
-        Optional<Device> updatedDeviceOpt = deviceService.update(deviceId, device);
-        if(updatedDeviceOpt.isPresent()){
-            Device updatedDevice = updatedDeviceOpt.get();
-            return new ResponseEntity<>(updatedDevice,HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PutMapping("/{deviceId}/update")
+    public ResponseEntity<Device> updateDevice(@PathVariable Long deviceId, @RequestBody DeviceDTO deviceDTO) {
+        Device updatedDevice = deviceService.updateDevice(deviceId, deviceDTO);
+        return new ResponseEntity<>(updatedDevice, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Void> deleteDevice(@PathVariable("id") Long deviceId){
-        boolean deleted = deviceService.deleteDevice(deviceId);
-        if(deleted){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{deviceId}")
+    public ResponseEntity<Device> getDeviceById(@PathVariable Long deviceId) {
+        Device device = deviceService.getDeviceById(deviceId);
+        return new ResponseEntity<>(device, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Device>> getDevices(){
+        List<Device> list = deviceService.getAllDevices();
+        return new ResponseEntity<>(list,HttpStatus.OK);
+    }
+    @DeleteMapping("/{deviceId}/delete")
+    public ResponseEntity<Void> deleteDevice(@PathVariable Long deviceId) {
+        deviceService.deleteDevice(deviceId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
