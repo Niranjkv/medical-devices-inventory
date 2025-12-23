@@ -1,0 +1,32 @@
+# Maven
+target/
+
+# Gradle
+build/
+
+# IDE files
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ specific
+.iml
+
+# Eclipse specific
+.project
+.classpath
+
+# Spring Boot specific
+.spring-boot-loader/
