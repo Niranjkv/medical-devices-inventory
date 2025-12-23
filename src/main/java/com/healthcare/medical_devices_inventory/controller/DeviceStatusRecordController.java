@@ -21,7 +21,7 @@ import com.healthcare.medical_devices_inventory.model.DeviceStatusRecord;
 import com.healthcare.medical_devices_inventory.service.DeviceStatusRecordService;
 
 @RestController
-@RequestMapping("/api/v1/devices")
+@RequestMapping("/api/device-status")
 public class DeviceStatusRecordController {
 
     private final DeviceStatusRecordService deviceStatusRecordService;
