@@ -16,15 +16,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviceCategory {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String categoryName;
-
     private String description;
 
     @OneToMany(mappedBy = "category")
-    List<Device> devices;
-
+    private List<Device> devices; // One-to-Many relationship with Device
 }
+

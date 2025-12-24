@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
 import com.healthcare.medical_devices_inventory.exception.ResourceNotFoundException;
 import com.healthcare.medical_devices_inventory.model.Device;
 import com.healthcare.medical_devices_inventory.model.DeviceCategory;
+import com.healthcare.medical_devices_inventory.model.DeviceLocation;
+import com.healthcare.medical_devices_inventory.model.DeviceManufacturer;
 import com.healthcare.medical_devices_inventory.repository.DeviceCategoryRepository;
+import com.healthcare.medical_devices_inventory.repository.DeviceLocationRepository;
+import com.healthcare.medical_devices_inventory.repository.DeviceManufacturerRepository;
 import com.healthcare.medical_devices_inventory.repository.DeviceRepository;
 
 @Service
@@ -18,35 +21,46 @@ public class DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceCategoryRepository deviceCategoryRepository;
+    private final DeviceLocationRepository deviceLocationRepository;
+    private final DeviceManufacturerRepository deviceManufacturerRepository;
 
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository, DeviceCategoryRepository deviceCategoryRepository) {
+    public DeviceService(DeviceRepository deviceRepository, DeviceCategoryRepository deviceCategoryRepository, DeviceLocationRepository deviceLocationRepository, DeviceManufacturerRepository deviceManufacturerRepository) {
         this.deviceRepository = deviceRepository;
         this.deviceCategoryRepository = deviceCategoryRepository;
+        this.deviceLocationRepository = deviceLocationRepository;
+        this.deviceManufacturerRepository = deviceManufacturerRepository;
     }
 
-    @Transactional
-    public Device createDevice(DeviceDTO deviceDTO) {
-        // Fetch the DeviceCategory from the database using the categoryId from the DTO
-        DeviceCategory category = deviceCategoryRepository.findById(deviceDTO.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + deviceDTO.getCategoryId()));
+   @Transactional
+    public Device createDevice(Device device) {
+        if (device.getMaintanenceDate() != null) {
+            device.setMaintanenceDate(device.getMaintanenceDate());
+        }   
+        // Set category
+        DeviceCategory category = deviceCategoryRepository.findById(device.getCategory().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        device.setCategory(category);
 
-        // Create a new Device entity and map values from the DTO
-        Device device = new Device();
-        device.setModelNumber(deviceDTO.getModelNumber());
-        device.setSerialNumber(deviceDTO.getSerialNumber());
-        device.setDescription(deviceDTO.getDescription());
-        device.setQuantity(deviceDTO.getQuantity());
-        device.setRegistrationDate(deviceDTO.getRegistrationDate());
-        device.setMaintanenceDate(deviceDTO.getMaintenanceDate());
-        device.setCategory(category);  // Set the fetched category to the device
+        // Set manufacturer
+        if (device.getManufacturer() != null && device.getManufacturer().getId() != null) {
+            DeviceManufacturer manufacturer = deviceManufacturerRepository.findById(device.getManufacturer().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+            device.setManufacturer(manufacturer);
+        }
 
-        // Save the device and return it
-        return deviceRepository.save(device);
+        // Set location
+        if (device.getLocation() != null && device.getLocation().getId() != null) {
+            DeviceLocation location = deviceLocationRepository.findById(device.getLocation().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
+            device.setLocation(location);
+        }
+
+        return deviceRepository.save(device);  // Save and return the entity
     }
 
-    public List<Device> getAllDevices(){
-        return deviceRepository.findAll();
+    public List<Device> getAllDevices() {
+        return deviceRepository.findAll();  // No DTO needed here for internal operations
     }
 
     @Transactional(readOnly = true)
@@ -56,41 +70,53 @@ public class DeviceService {
     }
 
     @Transactional
-    public Device updateDevice(Long deviceId, DeviceDTO deviceDTO) {
-        Device device = getDeviceById(deviceId);  // Fetch the device by its ID
-
-        // Update the fields from the DTO if they are not null
-        if (deviceDTO.getModelNumber() != null) {
-            device.setModelNumber(deviceDTO.getModelNumber());
+    public Device updateDevice(Long deviceId, Device device) {
+        Device existingDevice = getDeviceById(deviceId);
+        // Update the fields from the incoming device
+        existingDevice.setModelNumber(device.getModelNumber());
+        existingDevice.setSerialNumber(device.getSerialNumber());
+        existingDevice.setDescription(device.getDescription());
+        existingDevice.setQuantity(device.getQuantity());
+        existingDevice.setRegistrationDate(device.getRegistrationDate());
+         if (device.getMaintanenceDate() != null) {
+            existingDevice.setMaintanenceDate(device.getMaintanenceDate());
         }
-        if (deviceDTO.getSerialNumber() != null) {
-            device.setSerialNumber(deviceDTO.getSerialNumber());
+        // If a new category is provided, update the category
+        if (device.getCategory() != null) {
+            DeviceCategory category = deviceCategoryRepository.findById(device.getCategory().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            existingDevice.setCategory(category);
         }
-        if (deviceDTO.getDescription() != null) {
-            device.setDescription(deviceDTO.getDescription());
-        }
-        if (deviceDTO.getQuantity() != null) {
-            device.setQuantity(deviceDTO.getQuantity());
-        }
-        if (deviceDTO.getRegistrationDate() != null) {
-            device.setRegistrationDate(deviceDTO.getRegistrationDate());
-        }
-        if (deviceDTO.getMaintenanceDate() != null) {
-            device.setMaintanenceDate(deviceDTO.getMaintenanceDate());
-        }
-
-        // Update the category if a new categoryId is provided
-        if (deviceDTO.getCategoryId() != null) {
-            DeviceCategory category = deviceCategoryRepository.findById(deviceDTO.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + deviceDTO.getCategoryId()));
-            device.setCategory(category);
+        // If a new manufacturer is provided, update the manufacturer
+        if (device.getManufacturer() != null) {
+            DeviceManufacturer manufacturer = deviceManufacturerRepository.findById(device.getManufacturer().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+            existingDevice.setManufacturer(manufacturer);
         }
 
-        // Save and return the updated device
-        return deviceRepository.save(device);
+        // If a new location is provided, update the location
+        if (device.getLocation() != null) {
+            DeviceLocation location = deviceLocationRepository.findById(device.getLocation().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
+            existingDevice.setLocation(location);
+        }
+
+        
+        return deviceRepository.save(existingDevice);
     }
 
-
+    @Transactional(readOnly = true)
+    public List<Device> getFilteredDevices(Long categoryId, Long locationId, Long manufacturerId) {
+        if (categoryId != null) {
+            return deviceRepository.findByCategoryId(categoryId);
+        } else if (locationId != null) {
+            return deviceRepository.findByLocationId(locationId);
+        } else if (manufacturerId != null) {
+            return deviceRepository.findByManufacturerId(manufacturerId);
+        }
+        return deviceRepository.findAll();  // No filter, return all devices
+    }
+    
     @Transactional
     public boolean deleteDevice(Long deviceId) {
         if (!deviceRepository.existsById(deviceId)) {
