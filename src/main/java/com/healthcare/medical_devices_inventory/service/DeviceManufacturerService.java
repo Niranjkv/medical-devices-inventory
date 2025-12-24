@@ -48,6 +48,14 @@ public class DeviceManufacturerService {
         return null; // return null if manufacturer not found
     }
 
+    public List<DeviceManufacturer> getFilteredManufacturers(String name) {
+        if (name != null && !name.isBlank()) {
+            return deviceManufacturerRepository.findByNameContainingIgnoreCase(name);
+        }
+        return deviceManufacturerRepository.findAll();
+    }
+
+    
     // Delete a manufacturer
     public boolean deleteManufacturer(Long manufacturerId){
         Optional<DeviceManufacturer> existingManufacturer = getManufacturerById(manufacturerId);

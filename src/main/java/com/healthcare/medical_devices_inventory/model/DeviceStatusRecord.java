@@ -2,6 +2,8 @@ package com.healthcare.medical_devices_inventory.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,34 +22,33 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceStatusRecord{
+public class DeviceStatusRecord {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="device_id",referencedColumnName="id")
-    private Device device;
+    @JoinColumn(name = "device_id", referencedColumnName = "id")
+    @JsonManagedReference
+    private Device device; // Many-to-One relationship with Device
 
     @Enumerated(EnumType.STRING)
     private DeviceStatus status;
 
     private LocalDateTime statusChangeDate;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
-    public void onCreate(){
+    public void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         statusChangeDate = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void onUpdate(){
+    public void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 }

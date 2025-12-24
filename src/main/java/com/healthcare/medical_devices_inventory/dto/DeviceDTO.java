@@ -5,13 +5,16 @@ import java.time.LocalDateTime;
 public class DeviceDTO {
     
     private Long id;
+    private String name;
     private String modelNumber;
     private String serialNumber;
     private String description;
     private Integer quantity;
     private LocalDateTime registrationDate;
-    private LocalDateTime maintenanceDate;
+    private LocalDateTime maintanenceDate;
     private Long categoryId;  // The categoryId instead of the full category object
+    private Long manufacturerId;
+    private Long locationId;
 
     // Getters and Setters
     public Long getId() {
@@ -62,12 +65,12 @@ public class DeviceDTO {
         this.registrationDate = registrationDate;
     }
 
-    public LocalDateTime getMaintenanceDate() {
-        return maintenanceDate;
+    public LocalDateTime getMaintanenceDate() {
+        return maintanenceDate;
     }
 
-    public void setMaintenanceDate(LocalDateTime maintenanceDate) {
-        this.maintenanceDate = maintenanceDate;
+    public void setMaintanenceDate(LocalDateTime maintanenceDate) {
+        this.maintanenceDate = maintanenceDate;
     }
 
     public Long getCategoryId() {
@@ -76,5 +79,29 @@ public class DeviceDTO {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(Long manufacturerId) {
+        this.manufacturerId = manufacturerId;
+    }
+
+    public Long getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
     }
 }
