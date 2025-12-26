@@ -82,8 +82,6 @@ public class DeviceController {
         return ResponseEntity.ok(devices.stream().map(this::mapToDTO).toList());
     }
 
-    /* ================= MAPPERS ================= */
-
     private Device mapToEntity(DeviceDTO dto) {
         Device device = new Device();
         device.setName(dto.getName());

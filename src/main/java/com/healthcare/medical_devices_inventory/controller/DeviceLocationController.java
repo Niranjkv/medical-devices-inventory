@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
+import com.healthcare.medical_devices_inventory.dto.DeviceLocationDTO;
 import com.healthcare.medical_devices_inventory.model.DeviceLocation;
 import com.healthcare.medical_devices_inventory.service.DeviceLocationService;
 
@@ -21,56 +22,47 @@ import com.healthcare.medical_devices_inventory.service.DeviceLocationService;
 @RequestMapping("/api/device-locations")
 public class DeviceLocationController {
 
-    private final DeviceLocationService deviceLocationService;
+    private final DeviceLocationService service;
 
-    public DeviceLocationController(DeviceLocationService deviceLocationService) {
-        this.deviceLocationService = deviceLocationService;
+    public DeviceLocationController(DeviceLocationService service) {
+        this.service = service;
     }
 
-    // GET ALL
-    @GetMapping
-    public ResponseEntity<List<DeviceLocation>> getAllLocations() {
-        return ResponseEntity.ok(deviceLocationService.getAllLocations());
-    }
-
-    // GET BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<DeviceLocation> getLocationById(@PathVariable Long id) {
-        DeviceLocation location = deviceLocationService.getLocationById(id);
-        return ResponseEntity.ok(location);
-    }
-
-    // CREATE
     @PostMapping
-    public ResponseEntity<DeviceLocation> createLocation(
-            @RequestBody DeviceLocation deviceLocation) {
+    public ResponseEntity<DeviceLocationDTO> create(
+            @RequestBody DeviceLocation location) {
 
-        DeviceLocation created = deviceLocationService.createLocation(deviceLocation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.create(location));
     }
 
-    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<DeviceLocation> updateLocation(
+    public ResponseEntity<DeviceLocationDTO> update(
             @PathVariable Long id,
-            @RequestBody DeviceLocation deviceLocation) {
+            @RequestBody DeviceLocation location) {
 
-        DeviceLocation updated = deviceLocationService.updateLocation(id, deviceLocation);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(service.update(id, location));
     }
 
-    @GetMapping("/filter")
-    public ResponseEntity<List<DeviceLocation>> getLocations(
-            @RequestParam(required = false) String locationType) {
-
-        List<DeviceLocation> locations = deviceLocationService.getFilteredLocations(locationType);
-        return ResponseEntity.ok(locations);
+    @GetMapping("/{id}")
+    public ResponseEntity<DeviceLocationDTO> get(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
-    
-    // DELETE
+
+    @GetMapping
+    public List<DeviceLocationDTO> getAll() {
+        return service.getAll();
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
-        deviceLocationService.deleteLocation(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
+    @GetMapping("/{id}/devices")
+    public ResponseEntity<List<DeviceDTO>> getDevicesByLocation(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getDevicesByLocation(id));
     }
 }

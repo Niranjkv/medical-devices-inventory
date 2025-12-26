@@ -2,6 +2,7 @@ package com.healthcare.medical_devices_inventory.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
+import com.healthcare.medical_devices_inventory.dto.DeviceManufacturerDTO;
 import com.healthcare.medical_devices_inventory.model.DeviceManufacturer;
 import com.healthcare.medical_devices_inventory.service.DeviceManufacturerService;
 
@@ -20,62 +22,45 @@ import com.healthcare.medical_devices_inventory.service.DeviceManufacturerServic
 @RequestMapping("/api/device-manufacturers")
 public class DeviceManufacturerController {
 
-    private final DeviceManufacturerService deviceManufacturerService;
+    private final DeviceManufacturerService service;
 
-    public DeviceManufacturerController(DeviceManufacturerService deviceManufacturerService) {
-        this.deviceManufacturerService = deviceManufacturerService;
+    public DeviceManufacturerController(DeviceManufacturerService service) {
+        this.service = service;
     }
 
-    // GET ALL + FILTER
-    @GetMapping
-    public ResponseEntity<List<DeviceManufacturer>> getManufacturers(
-            @RequestParam(required = false) String name) {
-
-        List<DeviceManufacturer> manufacturers =
-                deviceManufacturerService.getFilteredManufacturers(name);
-
-        return ResponseEntity.ok(manufacturers);
-    }
-
-    // GET BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<DeviceManufacturer> getManufacturerById(@PathVariable Long id) {
-        return deviceManufacturerService.getManufacturerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // CREATE
     @PostMapping
-    public ResponseEntity<DeviceManufacturer> createManufacturer(
-            @RequestBody DeviceManufacturer deviceManufacturer) {
+    public ResponseEntity<DeviceManufacturerDTO> create(
+            @RequestBody DeviceManufacturer manufacturer) {
 
-        DeviceManufacturer created =
-                deviceManufacturerService.createManufacturer(deviceManufacturer);
-
-        return ResponseEntity.status(201).body(created);
+        return new ResponseEntity<>(service.create(manufacturer), HttpStatus.CREATED);
     }
 
-    // UPDATE
+    @GetMapping
+    public ResponseEntity<List<DeviceManufacturerDTO>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DeviceManufacturerDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<DeviceManufacturer> updateManufacturer(
+    public ResponseEntity<DeviceManufacturerDTO> update(
             @PathVariable Long id,
-            @RequestBody DeviceManufacturer deviceManufacturer) {
+            @RequestBody DeviceManufacturer manufacturer) {
 
-        DeviceManufacturer updated =
-                deviceManufacturerService.updateManufacturer(id, deviceManufacturer);
-
-        return updated != null
-                ? ResponseEntity.ok(updated)
-                : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(service.update(id, manufacturer));
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteManufacturer(@PathVariable Long id) {
-        boolean deleted = deviceManufacturerService.deleteManufacturer(id);
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/devices")
+    public ResponseEntity<List<DeviceDTO>> getDevicesByManufacturer(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getDevicesByManufacturer(id));
     }
 }

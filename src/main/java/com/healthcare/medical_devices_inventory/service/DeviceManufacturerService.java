@@ -1,68 +1,93 @@
 package com.healthcare.medical_devices_inventory.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
+import com.healthcare.medical_devices_inventory.dto.DeviceManufacturerDTO;
+import com.healthcare.medical_devices_inventory.exception.ResourceNotFoundException;
+import com.healthcare.medical_devices_inventory.model.Device;
 import com.healthcare.medical_devices_inventory.model.DeviceManufacturer;
 import com.healthcare.medical_devices_inventory.repository.DeviceManufacturerRepository;
+import com.healthcare.medical_devices_inventory.repository.DeviceRepository;
 
 @Service
+@Transactional
 public class DeviceManufacturerService {
+
+    private final DeviceManufacturerRepository manufacturerRepository;
+    private final DeviceRepository deviceRepository;
+
+    public DeviceManufacturerService(DeviceManufacturerRepository manufacturerRepository, DeviceRepository deviceRepository) {
+        this.manufacturerRepository = manufacturerRepository;
+        this.deviceRepository = deviceRepository;
+    }
+
+    public DeviceManufacturerDTO create(DeviceManufacturer manufacturer) {
+        return mapToDTO(manufacturerRepository.save(manufacturer));
+    }
+
+    public List<DeviceManufacturerDTO> getAll() {
+        return manufacturerRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    public DeviceManufacturerDTO getById(Long id) {
+        DeviceManufacturer manufacturer = manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+        return mapToDTO(manufacturer);
+    }
+
+    public DeviceManufacturerDTO update(Long id, DeviceManufacturer input) {
+        DeviceManufacturer manufacturer = manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+
+        manufacturer.setName(input.getName());
+        manufacturer.setContactEmail(input.getContactEmail());
+        manufacturer.setContactPhone(input.getContactPhone());
+
+        return mapToDTO(manufacturerRepository.save(manufacturer));
+    }
+
+    public void delete(Long id) {
+        if (!manufacturerRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Manufacturer not found");
+        }
+        manufacturerRepository.deleteById(id);
+    }
+    public List<DeviceDTO> getDevicesByManufacturer(Long manufacturerId) {
+        return deviceRepository.findByManufacturerId(manufacturerId)
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    private DeviceDTO mapToDTO(Device device) {
+        DeviceDTO dto = new DeviceDTO();
+        dto.setId(device.getId());
+        dto.setName(device.getName());
+        dto.setModelNumber(device.getModelNumber());
+        dto.setSerialNumber(device.getSerialNumber());
+        dto.setDescription(device.getDescription());
+        dto.setQuantity(device.getQuantity());
+        dto.setRegistrationDate(device.getRegistrationDate());
+        dto.setMaintanenceDate(device.getMaintanenceDate());
+        dto.setCategoryId(device.getCategory().getId());
+        dto.setLocationId(device.getLocation().getId());
+        dto.setManufacturerId(device.getManufacturer().getId());
+        return dto;
+    }
     
-    private final DeviceManufacturerRepository deviceManufacturerRepository;
-
-    public DeviceManufacturerService(DeviceManufacturerRepository deviceManufacturerRepository){
-        this.deviceManufacturerRepository = deviceManufacturerRepository;
-    }
-
-    // Get all manufacturers
-    public List<DeviceManufacturer> getAllManufacturers(){
-        return deviceManufacturerRepository.findAll();
-    }
-
-    // Get manufacturer by id
-    public Optional<DeviceManufacturer> getManufacturerById(Long manufacturerId){
-        return deviceManufacturerRepository.findById(manufacturerId);
-    }
-
-    // Create a new manufacturer
-    public DeviceManufacturer createManufacturer(DeviceManufacturer deviceManufacturer){
-        return deviceManufacturerRepository.save(deviceManufacturer);
-    }
-
-    // Update an existing manufacturer
-    public DeviceManufacturer updateManufacturer(Long id, DeviceManufacturer deviceManufacturer){
-        Optional<DeviceManufacturer> existingManufacturer = getManufacturerById(id);
-        if(existingManufacturer.isPresent()){
-            DeviceManufacturer existing = existingManufacturer.get();
-            existing.setName(deviceManufacturer.getName());
-            existing.setContactEmail(deviceManufacturer.getContactEmail());
-            existing.setContactPhone(deviceManufacturer.getContactPhone());
-            existing.setCreatedAt(deviceManufacturer.getCreatedAt());
-            existing.setUpdatedAt(deviceManufacturer.getUpdatedAt());
-            deviceManufacturerRepository.save(existing);
-            return existing; // return updated manufacturer
-        }
-        return null; // return null if manufacturer not found
-    }
-
-    public List<DeviceManufacturer> getFilteredManufacturers(String name) {
-        if (name != null && !name.isBlank()) {
-            return deviceManufacturerRepository.findByNameContainingIgnoreCase(name);
-        }
-        return deviceManufacturerRepository.findAll();
-    }
-
-    
-    // Delete a manufacturer
-    public boolean deleteManufacturer(Long manufacturerId){
-        Optional<DeviceManufacturer> existingManufacturer = getManufacturerById(manufacturerId);
-        if(existingManufacturer.isPresent()){
-            deviceManufacturerRepository.deleteById(manufacturerId);
-            return true; // return true if deletion was successful
-        }
-        return false; // return false if manufacturer not found
+    private DeviceManufacturerDTO mapToDTO(DeviceManufacturer manufacturer) {
+        DeviceManufacturerDTO dto = new DeviceManufacturerDTO();
+        dto.setId(manufacturer.getId());
+        dto.setName(manufacturer.getName());
+        dto.setContactEmail(manufacturer.getContactEmail());
+        dto.setContactPhone(manufacturer.getContactPhone());
+        return dto;
     }
 }

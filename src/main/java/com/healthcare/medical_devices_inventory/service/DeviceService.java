@@ -34,10 +34,6 @@ public class DeviceService {
 
    @Transactional
     public Device createDevice(Device device) {
-        if (device.getMaintanenceDate() != null) {
-            device.setMaintanenceDate(device.getMaintanenceDate());
-        }   
-        // Set category
         DeviceCategory category = deviceCategoryRepository.findById(device.getCategory().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         device.setCategory(category);

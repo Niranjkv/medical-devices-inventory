@@ -29,7 +29,7 @@ public class DeviceLocation {
     private String description;   
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    
     @OneToMany(mappedBy = "location")
     private List<Device> devices; // One-to-Many relationship with Device
 

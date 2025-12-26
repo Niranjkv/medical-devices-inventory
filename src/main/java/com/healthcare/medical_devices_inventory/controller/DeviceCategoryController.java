@@ -13,51 +13,52 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.healthcare.medical_devices_inventory.dto.DeviceCategoryDTO;
+import com.healthcare.medical_devices_inventory.dto.DeviceDTO;
 import com.healthcare.medical_devices_inventory.model.DeviceCategory;
 import com.healthcare.medical_devices_inventory.service.DeviceCategoryService;
 
 @RestController
-@RequestMapping("/api/deviceCategories")
+@RequestMapping("/api/device-categories")
 public class DeviceCategoryController {
 
-    private final DeviceCategoryService deviceCategoryService;
+    private final DeviceCategoryService service;
 
-    public DeviceCategoryController(DeviceCategoryService deviceCategoryService) {
-        this.deviceCategoryService = deviceCategoryService;
+    public DeviceCategoryController(DeviceCategoryService service) {
+        this.service = service;
     }
 
-    // Get all Device Categories
-    @GetMapping
-    public ResponseEntity<List<DeviceCategory>> getAllCategories() {
-        List<DeviceCategory> categories = deviceCategoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
-    }
-
-    // Get Device Category by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<DeviceCategory> getCategoryById(@PathVariable Long id) {
-        DeviceCategory category = deviceCategoryService.getCategoryById(id);
-        return ResponseEntity.ok(category);
-    }
-
-    // Create a new Device Category
     @PostMapping
-    public ResponseEntity<DeviceCategory> createCategory(@RequestBody DeviceCategory deviceCategory) { 
-        DeviceCategory createdCategory = deviceCategoryService.createCategory(deviceCategory);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+    public ResponseEntity<DeviceCategoryDTO> create(@RequestBody DeviceCategory category) {
+        return new ResponseEntity<>(service.create(category), HttpStatus.CREATED);
     }
 
-    // Update an existing Device Category
+    @GetMapping
+    public ResponseEntity<List<DeviceCategoryDTO>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DeviceCategoryDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<DeviceCategory> updateCategory(@PathVariable Long id, @RequestBody DeviceCategory deviceCategory) {
-        DeviceCategory updatedCategory = deviceCategoryService.updateCategory(id, deviceCategory);
-        return ResponseEntity.ok(updatedCategory);
+    public ResponseEntity<DeviceCategoryDTO> update(
+            @PathVariable Long id,
+            @RequestBody DeviceCategory category) {
+
+        return ResponseEntity.ok(service.update(id, category));
     }
 
-    // Delete a Device Category by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        deviceCategoryService.deleteCategory(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/devices")
+    public ResponseEntity<List<DeviceDTO>> getDevicesByCategory(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getDevicesByCategory(id));
     }
 }

@@ -12,7 +12,7 @@ public class DeviceDTO {
     private Integer quantity;
     private LocalDateTime registrationDate;
     private LocalDateTime maintanenceDate;
-    private Long categoryId;  // The categoryId instead of the full category object
+    private Long categoryId; 
     private Long manufacturerId;
     private Long locationId;
 
